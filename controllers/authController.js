@@ -1,0 +1,55 @@
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+exports.login = async (req, res) => {
+  try {
+    const { phone, pin } = req.body;
+    const user = await User.findOne({ phone });
+    if (user && (await user.matchPin(pin))) {
+      res.json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, token: generateToken(user._id) });
+    } else res.status(401).json({ message: 'Invalid phone number or PIN' });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+exports.register = async (req, res) => {
+  try {
+    const { name, phone, pin, role } = req.body;
+    if (await User.findOne({ phone })) return res.status(400).json({ message: 'User already exists' });
+    const user = await User.create({ name, phone, pin, role });
+    res.status(201).json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, token: generateToken(user._id) });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-pin');
+    if (user) res.json(user);
+    else res.status(404).json({ message: 'User not found' });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.name = req.body.name || user.name;
+      if (req.body.pin) user.pin = req.body.pin; // Will be hashed via pre-save
+      const updatedUser = await user.save();
+      res.json({ _id: updatedUser._id, name: updatedUser.name, phone: updatedUser.phone, token: generateToken(updatedUser._id) });
+    } else res.status(404).json({ message: 'User not found' });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try { res.json(await User.find().select('-pin')); }
+  catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User removed' });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
