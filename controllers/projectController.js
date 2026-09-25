@@ -14,3 +14,15 @@ exports.deleteProject = async (req, res) => {
   try { await Project.findByIdAndDelete(req.params.id); res.json({message: 'Removed'}); } 
   catch (error) { res.status(500).json({ message: 'Server Error' }); } 
 };
+exports.updateConfig = async (req, res) => {
+  try {
+    let proj = await Project.findOne();
+    if (!proj) {
+      proj = await Project.create({ name: 'Default Project', address: 'Default', totalBudget: 5000000 });
+    }
+    const up = await Project.findByIdAndUpdate(proj._id, req.body, {new: true});
+    res.json(up);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

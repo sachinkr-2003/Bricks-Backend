@@ -1,13 +1,19 @@
 const mongoose = require('mongoose');
 
 const warrantySchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  category: { type: String, required: true },
-  provider: { type: String, required: true },
-  validUntil: { type: Date, required: true },
-  status: { type: String, enum: ['Active', 'Expired', 'Claimed'], default: 'Active' },
-  documentUrl: { type: String }, // PDF or image logic
-  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: false },
+  issueType: { 
+    type: String, 
+    required: true,
+    enum: ['Seepage', 'Structural', 'Plumbing', 'Electrical', 'Other']
+  },
+  description: { type: String, required: true },
+  status: { 
+    type: String, 
+    default: 'Pending Review',
+    enum: ['Pending Review', 'In Progress', 'Resolved', 'Completed'] 
+  },
+  technician: { type: String, default: 'Unassigned' },
+  projectId: { type: String, default: 'DEFAULT_PROJ' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Warranty', warrantySchema);

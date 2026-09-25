@@ -8,6 +8,7 @@ const projectSchema = new mongoose.Schema({
   startDate: { type: Date },
   expectedEndDate: { type: Date },
   totalBudget: { type: Number, required: true },
+  approvedAdditional: { type: Number, default: 0 },
   currentStage: { type: String, default: 'Planning' },
   completionPercentage: { type: Number, default: 0 }
 }, { timestamps: true });

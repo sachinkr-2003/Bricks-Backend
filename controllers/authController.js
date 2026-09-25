@@ -8,17 +8,17 @@ exports.login = async (req, res) => {
     const { phone, pin } = req.body;
     const user = await User.findOne({ phone });
     if (user && (await user.matchPin(pin))) {
-      res.json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, token: generateToken(user._id) });
+      res.json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, profileImage: user.profileImage, token: generateToken(user._id) });
     } else res.status(401).json({ message: 'Invalid phone number or PIN' });
   } catch (error) { res.status(500).json({ message: 'Server Error' }); }
 };
 
 exports.register = async (req, res) => {
   try {
-    const { name, phone, pin, role } = req.body;
+    const { name, phone, pin, role, profileImage } = req.body;
     if (await User.findOne({ phone })) return res.status(400).json({ message: 'User already exists' });
-    const user = await User.create({ name, phone, pin, role });
-    res.status(201).json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, token: generateToken(user._id) });
+    const user = await User.create({ name, phone, pin, role, profileImage: profileImage || '' });
+    res.status(201).json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, profileImage: user.profileImage, token: generateToken(user._id) });
   } catch (error) { res.status(500).json({ message: 'Server Error' }); }
 };
 
@@ -36,8 +36,9 @@ exports.updateProfile = async (req, res) => {
     if (user) {
       user.name = req.body.name || user.name;
       if (req.body.pin) user.pin = req.body.pin; // Will be hashed via pre-save
+      if (req.body.profileImage !== undefined) user.profileImage = req.body.profileImage;
       const updatedUser = await user.save();
-      res.json({ _id: updatedUser._id, name: updatedUser.name, phone: updatedUser.phone, token: generateToken(updatedUser._id) });
+      res.json({ _id: updatedUser._id, name: updatedUser.name, phone: updatedUser.phone, profileImage: updatedUser.profileImage, token: generateToken(updatedUser._id) });
     } else res.status(404).json({ message: 'User not found' });
   } catch (error) { res.status(500).json({ message: 'Server Error' }); }
 };

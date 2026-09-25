@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getWarranties, addWarranty, getWarrantyById, updateWarranty, deleteWarranty } = require('../controllers/warrantyController');
+const warrantyController = require('../controllers/warrantyController');
 
-router.route('/').get(getWarranties).post(addWarranty);
-router.route('/:id').get(getWarrantyById).put(updateWarranty).delete(deleteWarranty);
+router.post('/', warrantyController.createComplaint);
+router.get('/', warrantyController.getComplaints);
 
 module.exports = router;

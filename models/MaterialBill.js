@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const materialBillSchema = new mongoose.Schema({
-  date: { type: Date, required: true },
-  vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'MasterResource', required: true },
+  date: { type: Date, required: true, default: Date.now },
+  supplierName: { type: String, required: true },
   materialName: { type: String, required: true },
   quantity: { type: Number, required: true },
   unit: { type: String, required: true },
