@@ -5,8 +5,9 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 
 // Staff roles allowed in the Software (Dashboard)
 const SOFTWARE_ROLES = ['admin', 'manager', 'supervisor', 'engineer', 'accountant', 'contractor'];
-// Customer roles allowed only in the Mobile App
-const APP_ROLES = ['customer'];
+// Roles allowed in the Mobile App (Now everyone because Staff needs it for data entry, Customer needs it for viewing)
+const APP_ROLES = ['customer', 'admin', 'manager', 'supervisor', 'engineer', 'contractor'];
+
 
 // ✅ SOFTWARE LOGIN — Only staff (admin/manager/supervisor/engineer/accountant/contractor)
 exports.softwareLogin = async (req, res) => {
