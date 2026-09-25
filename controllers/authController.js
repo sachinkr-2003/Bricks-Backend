@@ -54,3 +54,20 @@ exports.deleteUser = async (req, res) => {
     res.json({ message: 'User removed' });
   } catch (error) { res.status(500).json({ message: 'Server Error' }); }
 };
+
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user) {
+      user.name = req.body.name || user.name;
+      user.phone = req.body.phone || user.phone;
+      user.role = req.body.role || user.role;
+      if (req.body.pin) user.pin = req.body.pin; 
+      if (req.body.profileImage !== undefined) user.profileImage = req.body.profileImage;
+      const updatedUser = await user.save();
+      res.json(updatedUser);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
