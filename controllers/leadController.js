@@ -6,3 +6,7 @@ exports.updateLeadStatus = async (req, res) => {
   try { const l = await Lead.findByIdAndUpdate(req.params.id, { status: req.body.status }, {new: true}); l ? res.json(l) : res.status(404).json({message: 'Not found'}); } 
   catch (error) { res.status(500).json({ message: 'Server Error' }); } 
 };
+exports.deleteLead = async (req, res) => {
+  try { await Lead.findByIdAndDelete(req.params.id); res.json({ message: 'Lead deleted' }); }
+  catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
