@@ -3,6 +3,42 @@ const jwt = require('jsonwebtoken');
 
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
+// Staff roles allowed in the Software (Dashboard)
+const SOFTWARE_ROLES = ['admin', 'manager', 'supervisor', 'engineer', 'accountant', 'contractor'];
+// Customer roles allowed only in the Mobile App
+const APP_ROLES = ['customer'];
+
+// ✅ SOFTWARE LOGIN — Only staff (admin/manager/supervisor/engineer/accountant/contractor)
+exports.softwareLogin = async (req, res) => {
+  try {
+    const { phone, pin } = req.body;
+    const user = await User.findOne({ phone });
+    if (!user) return res.status(401).json({ message: 'Invalid phone number or PIN' });
+    if (!SOFTWARE_ROLES.includes(user.role)) {
+      return res.status(403).json({ message: 'Access denied. This portal is for staff only. Please use the Brick By Brick App.' });
+    }
+    if (await user.matchPin(pin)) {
+      res.json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, profileImage: user.profileImage, token: generateToken(user._id) });
+    } else res.status(401).json({ message: 'Invalid phone number or PIN' });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+// ✅ APP LOGIN — Only customers (client portal)
+exports.appLogin = async (req, res) => {
+  try {
+    const { phone, pin } = req.body;
+    const user = await User.findOne({ phone });
+    if (!user) return res.status(401).json({ message: 'Invalid phone number or PIN' });
+    if (!APP_ROLES.includes(user.role)) {
+      return res.status(403).json({ message: 'Access denied. This app is for clients only. Staff should use the Brick By Brick Software.' });
+    }
+    if (await user.matchPin(pin)) {
+      res.json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, profileImage: user.profileImage, token: generateToken(user._id) });
+    } else res.status(401).json({ message: 'Invalid phone number or PIN' });
+  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+};
+
+// Legacy combined login (keep for backward compat but prefer above)
 exports.login = async (req, res) => {
   try {
     const { phone, pin } = req.body;
