@@ -21,12 +21,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    // Strictly accept only specific image extensions
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.jpg' || ext === '.jpeg' || ext === '.png' || ext === '.webp') {
+    if (ext === '.jpg' || ext === '.jpeg' || ext === '.png' || ext === '.webp' || ext === '.pdf') {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type! Please upload only .jpg, .jpeg, .png, .webp files.'), false);
+        cb(new Error('Invalid file type! Please upload only .jpg, .jpeg, .png, .webp, or .pdf files.'), false);
     }
 };
 
@@ -34,7 +33,7 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 1024 * 1024 * 5 // 5 MB limit per image
+        fileSize: 1024 * 1024 * 5 // 5 MB limit
     }
 });
 
