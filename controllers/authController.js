@@ -15,7 +15,7 @@ exports.softwareLogin = async (req, res) => {
     const { phone, pin } = req.body;
     const user = await User.findOne({ phone });
     if (!user) return res.status(401).json({ message: 'Invalid phone number or PIN' });
-    if (!SOFTWARE_ROLES.includes(user.role)) {
+    if (user.role && !SOFTWARE_ROLES.includes(user.role.toLowerCase())) {
       return res.status(403).json({ message: 'Access denied. This portal is for staff only. Please use the Brick By Brick App.' });
     }
     if (await user.matchPin(pin)) {
@@ -30,7 +30,7 @@ exports.appLogin = async (req, res) => {
     const { phone, pin } = req.body;
     const user = await User.findOne({ phone });
     if (!user) return res.status(401).json({ message: 'Invalid phone number or PIN' });
-    if (!APP_ROLES.includes(user.role)) {
+    if (user.role && !APP_ROLES.includes(user.role.toLowerCase())) {
       return res.status(403).json({ message: 'Access denied. This app is for clients only. Staff should use the Brick By Brick Software.' });
     }
     if (await user.matchPin(pin)) {
@@ -77,7 +77,10 @@ exports.updateProfile = async (req, res) => {
       const updatedUser = await user.save();
       res.json({ _id: updatedUser._id, name: updatedUser.name, phone: updatedUser.phone, profileImage: updatedUser.profileImage, token: generateToken(updatedUser._id) });
     } else res.status(404).json({ message: 'User not found' });
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Profile Update Error:', error);
+    res.status(500).json({ message: error.message || 'Server Error' }); 
+  }
 };
 
 exports.getAllUsers = async (req, res) => {

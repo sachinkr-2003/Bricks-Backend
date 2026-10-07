@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middlewares/uploadMiddleware');
 
-// Backend's own public URL (Render deployment)
-const BACKEND_URL = process.env.BACKEND_URL || 'https://bricks-backend-fk3q.onrender.com';
+// We will resolve the base URL dynamically from the request headers
 
 // Route to handle multiple image uploads
 router.post('/', upload.array('images', 10), (req, res) => {
@@ -12,8 +11,9 @@ router.post('/', upload.array('images', 10), (req, res) => {
             return res.status(400).json({ success: false, message: 'No images uploaded' });
         }
 
-        // ✅ Return FULL absolute URLs so Vercel frontend can load them
-        const fileUrls = req.files.map(file => `${BACKEND_URL}/uploads/${file.filename}`);
+        // ✅ Return FULL absolute URLs dynamically so frontend can load them anywhere
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const fileUrls = req.files.map(file => `${baseUrl}/uploads/${file.filename}`);
 
         res.status(200).json({
             success: true,
