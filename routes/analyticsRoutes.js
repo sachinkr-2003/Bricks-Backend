@@ -3,6 +3,7 @@ const router = express.Router();
 const { getDashboardStats, getBudgetStats } = require('../controllers/analyticsController');
 const { protect } = require('../middleware/authMiddleware');
 
+router.get('/', protect, getDashboardStats);
 router.get('/dashboard', protect, getDashboardStats);
 router.get('/budget', protect, getBudgetStats);
 

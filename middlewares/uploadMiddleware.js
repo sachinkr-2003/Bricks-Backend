@@ -11,7 +11,7 @@ if (!fs.existsSync(uploadDir)) {
 // Set up storage engine
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Save files in the "uploads" folder
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
         // Create a unique filename using timestamp and random number

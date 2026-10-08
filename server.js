@@ -49,6 +49,7 @@ app.use('/api/updates', updateRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/warranties', warrantyRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/dashboard', analyticsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/leads', leadRoutes);

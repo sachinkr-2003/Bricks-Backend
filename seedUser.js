@@ -1,10 +1,11 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('./models/User');
 
 const seedAdmin = async () => {
   try {
-    // Connect to the DB used by the server
-    await mongoose.connect('mongodb://localhost:27017/brickbybrick');
+    const dbUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/brickbybrick';
+    await mongoose.connect(dbUri);
     
     console.log('Connected to DB');
 

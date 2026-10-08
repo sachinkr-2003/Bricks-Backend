@@ -53,8 +53,20 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     const { name, phone, pin, role, profileImage } = req.body;
+    if (!name || !phone || !pin) {
+      return res.status(400).json({ message: 'Name, phone number, and PIN are required' });
+    }
     if (await User.findOne({ phone })) return res.status(400).json({ message: 'User already exists' });
-    const user = await User.create({ name, phone, pin, role, profileImage: profileImage || '' });
+    
+    // Only logged-in admin/manager can assign staff/admin roles
+    let assignedRole = 'customer';
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'manager')) {
+      assignedRole = role ? role.toLowerCase() : 'customer';
+    } else if (role && role.toLowerCase() !== 'customer') {
+      assignedRole = 'customer'; // Default public signups to customer
+    }
+
+    const user = await User.create({ name, phone, pin, role: assignedRole, profileImage: profileImage || '' });
     res.status(201).json({ _id: user._id, name: user.name, phone: user.phone, role: user.role, profileImage: user.profileImage, token: generateToken(user._id) });
   } catch (error) { res.status(500).json({ message: 'Server Error' }); }
 };
@@ -105,7 +117,9 @@ exports.updateUser = async (req, res) => {
       if (req.body.pin) user.pin = req.body.pin; 
       if (req.body.profileImage !== undefined) user.profileImage = req.body.profileImage;
       const updatedUser = await user.save();
-      res.json(updatedUser);
+      const userObj = updatedUser.toObject();
+      delete userObj.pin;
+      res.json(userObj);
     } else {
       res.status(404).json({ message: 'User not found' });
     }
